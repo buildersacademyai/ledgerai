@@ -5,7 +5,7 @@ import {
   type Wallet, type InsertWallet,
   blockchainQueries, transactions, wallets
 } from "@shared/schema";
-import { desc, eq } from "drizzle-orm";
+import { desc, eq, ilike } from "drizzle-orm";
 
 export interface IStorage {
   saveQuery(query: InsertQuery): Promise<Query>;
@@ -14,6 +14,7 @@ export interface IStorage {
   getWallet(address: string): Promise<Wallet | undefined>;
   saveWallet(wallet: InsertWallet): Promise<Wallet>;
   saveTransaction(transaction: InsertTransaction): Promise<Transaction>;
+  findSimilarQueries(queryText: string): Promise<Query[]>;
 }
 
 export class DatabaseStorage implements IStorage {
@@ -36,6 +37,15 @@ export class DatabaseStorage implements IStorage {
       .limit(limit);
   }
 
+  async findSimilarQueries(queryText: string): Promise<Query[]> {
+    return await db
+      .select()
+      .from(blockchainQueries)
+      .where(ilike(blockchainQueries.query, queryText.trim()))
+      .orderBy(desc(blockchainQueries.timestamp))
+      .limit(5);
+  }
+
   async getMockTransactions(): Promise<Transaction[]> {
     return await db
       .select()
@@ -48,14 +58,18 @@ export class DatabaseStorage implements IStorage {
     const [wallet] = await db
       .select()
       .from(wallets)
-      .where(eq(wallets.address, address));
+      .where(eq(wallets.address, address.toLowerCase()));
     return wallet;
   }
 
   async saveWallet(wallet: InsertWallet): Promise<Wallet> {
     const [saved] = await db
       .insert(wallets)
-      .values(wallet)
+      .values({
+        ...wallet,
+        address: wallet.address.toLowerCase(), // Normalize addresses
+        lastUpdated: new Date()
+      })
       .returning();
     return saved;
   }
@@ -63,7 +77,12 @@ export class DatabaseStorage implements IStorage {
   async saveTransaction(transaction: InsertTransaction): Promise<Transaction> {
     const [saved] = await db
       .insert(transactions)
-      .values(transaction)
+      .values({
+        ...transaction,
+        from: transaction.from.toLowerCase(), // Normalize addresses
+        to: transaction.to.toLowerCase(),
+        timestamp: new Date()
+      })
       .returning();
     return saved;
   }

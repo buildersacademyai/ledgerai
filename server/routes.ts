@@ -13,6 +13,18 @@ export async function registerRoutes(app: Express) {
     try {
       const { query } = insertQuerySchema.parse(req.body);
 
+      // First, check if we have this query in our database
+      const existingQueries = await storage.getRecentQueries(100);
+      const similarQuery = existingQueries.find(q => 
+        q.query.toLowerCase().trim() === query.toLowerCase().trim()
+      );
+
+      if (similarQuery) {
+        // If we have a matching query, return the cached response
+        return res.json(similarQuery);
+      }
+
+      // If no cache hit, process with OpenAI
       const completion = await openai.chat.completions.create({
         model: "gpt-4o",
         messages: [
@@ -30,7 +42,32 @@ export async function registerRoutes(app: Express) {
 
       const content = completion.choices[0].message.content || "{}";
       const response = JSON.parse(content);
+
+      // Save the new query and response to database
       const savedQuery = await storage.saveQuery({ query, response });
+
+      // If the response contains transaction data, store it
+      if (response.type === 'transaction' && Array.isArray(response.data)) {
+        for (const tx of response.data) {
+          if (tx.hash && tx.from && tx.to && tx.amount) {
+            await storage.saveTransaction({
+              hash: tx.hash,
+              from: tx.from,
+              to: tx.to,
+              amount: tx.amount
+            });
+          }
+        }
+      }
+
+      // If the response contains wallet data, store it
+      if (response.type === 'wallet' && response.data.address) {
+        await storage.saveWallet({
+          address: response.data.address,
+          balance: response.data.balance || '0 ETH'
+        });
+      }
+
       res.json(savedQuery);
     } catch (error: any) {
       const message = error?.message || "An error occurred";
