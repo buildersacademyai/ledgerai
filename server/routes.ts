@@ -13,7 +13,12 @@ const SYSTEM_PROMPT = `You are a blockchain data analyzer. Format responses as J
   "type": "wallet" | "transaction" | "analysis",
   "data": object | array,
   "explanation": string
-}`;
+}
+
+For gas fee analysis queries:
+1. Include 'type': 'analysis'
+2. Structure data with 'topSpenders' array
+3. Add timeframe information`;
 
 export async function registerRoutes(app: Express) {
   app.post("/api/query", async (req, res) => {
