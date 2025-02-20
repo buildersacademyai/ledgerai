@@ -3,14 +3,14 @@ import { Link } from "wouter";
 
 export default function Landing() {
   return (
-    <div className="min-h-screen flex flex-col bg-gradient-to-br from-[#FFCB67] to-[#FFE5B1]">
+    <div className="min-h-screen flex flex-col bg-gradient-to-br from-[#1a1a1a] to-[#2d2d2d]">
       {/* Header */}
       <header className="container mx-auto px-4 py-6 flex items-center justify-between">
         <div className="flex items-center gap-2">
           <svg
             viewBox="0 0 24 24"
             fill="none"
-            className="w-10 h-10"
+            className="w-10 h-10 text-primary"
             stroke="currentColor"
             strokeWidth="2"
           >
@@ -30,13 +30,13 @@ export default function Landing() {
               strokeLinejoin="round"
             />
           </svg>
-          <h1 className="text-2xl font-bold">LedgerAI</h1>
+          <h1 className="text-2xl font-bold bg-gradient-to-r from-[#FFCB67] to-[#FFE5B1] text-transparent bg-clip-text">LedgerAI</h1>
         </div>
-        
+
         <nav className="flex items-center gap-6">
-          <a href="#about" className="hover:text-primary">About Us</a>
+          <a href="#about" className="text-[#FFCB67] hover:text-[#FFE5B1] transition-colors">About Us</a>
           <Link href="/app">
-            <Button className="bg-primary text-white hover:bg-primary/90">
+            <Button className="bg-primary text-black hover:bg-primary/90">
               Launch App
             </Button>
           </Link>
@@ -46,15 +46,15 @@ export default function Landing() {
       {/* Main Content */}
       <main className="flex-1 container mx-auto px-4 py-12">
         <div className="max-w-3xl mx-auto text-center">
-          <h2 className="text-4xl font-bold mb-6">
+          <h2 className="text-4xl font-bold mb-6 bg-gradient-to-r from-[#FFCB67] to-[#FFE5B1] text-transparent bg-clip-text">
             Explore Blockchain Data with Natural Language
           </h2>
-          <p className="text-xl mb-8">
+          <p className="text-xl mb-8 text-[#FFCB67]/90">
             Ask questions about Ethereum transactions, wallets, and smart contracts in plain English.
             Let AI do the heavy lifting.
           </p>
           <Link href="/app">
-            <Button size="lg" className="bg-primary text-white hover:bg-primary/90">
+            <Button size="lg" className="bg-primary text-black hover:bg-primary/90">
               Start Exploring
             </Button>
           </Link>
@@ -62,8 +62,8 @@ export default function Landing() {
 
         {/* About Section */}
         <div id="about" className="mt-24 max-w-2xl mx-auto text-center">
-          <h3 className="text-2xl font-bold mb-4">About Us</h3>
-          <p className="text-lg">
+          <h3 className="text-2xl font-bold mb-4 bg-gradient-to-r from-[#FFCB67] to-[#FFE5B1] text-transparent bg-clip-text">About Us</h3>
+          <p className="text-lg text-[#FFCB67]/80">
             LedgerAI combines the power of artificial intelligence with blockchain
             technology to make crypto data accessible to everyone. Whether you're
             a trader, researcher, or just curious about blockchain, we've got you covered.
@@ -73,10 +73,10 @@ export default function Landing() {
 
       {/* Footer */}
       <footer className="container mx-auto px-4 py-6 text-center">
-        <p className="mb-2">Made with ❤️ by BA Team</p>
+        <p className="mb-2 text-[#FFCB67]">Made with ❤️ by BA Team</p>
         <a
           href="mailto:contact@buildersacademy.ai"
-          className="text-primary hover:underline"
+          className="text-primary hover:text-[#FFE5B1] transition-colors"
         >
           contact@buildersacademy.ai
         </a>
