@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { useMutation, useQuery } from "@tanstack/react-query";
-import { apiRequest } from "@/lib/queryClient";
+import { apiRequest, queryClient } from "@/lib/queryClient";
 import { Card } from "@/components/ui/card";
 import ChatInput from "@/components/chat-input";
 import ResponseCard from "@/components/response-card";
@@ -26,6 +26,7 @@ export default function Home() {
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["/api/recent-queries"] });
+      queryClient.invalidateQueries({ queryKey: ["/api/transactions"] });
     },
     onError: (error) => {
       toast({
@@ -73,7 +74,7 @@ export default function Home() {
             <Card className="p-6 mt-6">
               <h2 className="text-xl font-semibold mb-4">Recent Queries</h2>
               <div className="space-y-2">
-                {recentQueries?.map((query) => (
+                {(recentQueries || []).map((query: any) => (
                   <div
                     key={query.id}
                     className="p-3 bg-muted rounded-lg text-sm"
