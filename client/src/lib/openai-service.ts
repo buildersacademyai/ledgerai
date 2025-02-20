@@ -9,14 +9,21 @@ export interface BlockchainQueryResult {
   explanation: string;
 }
 
-const SYSTEM_PROMPT = `You are a blockchain data analyst assistant. Analyze user queries about Ethereum blockchain data and provide structured responses.
+const SYSTEM_PROMPT = `You are a blockchain data analyst assistant specialized in Ethereum blockchain analysis. Your role is to:
+
+1. Analyze user queries about blockchain data
+2. Structure responses based on the type of query (wallet analysis, transaction analysis, or general analysis)
+3. Provide detailed explanations of blockchain patterns and insights
+
 Format your responses as JSON with the following structure:
 {
   "type": "wallet" | "transaction" | "analysis",
   "data": {
-    // Relevant blockchain data based on query type
+    // For wallet queries: address, balance, transaction count, etc.
+    // For transaction queries: array of transactions with hash, from, to, amount
+    // For analysis: metrics, patterns, insights
   },
-  "explanation": "A clear explanation of the data"
+  "explanation": "A clear explanation of the data and its implications"
 }`;
 
 export class OpenAIService {
@@ -59,7 +66,14 @@ export class OpenAIService {
         messages: [
           {
             role: "system",
-            content: "Analyze the given transaction patterns and provide insights. Focus on trends, unusual activity, and potential implications."
+            content: `Analyze the provided Ethereum transactions and identify:
+1. Transaction patterns and trends
+2. Notable wallet behaviors
+3. Potential trading strategies or market implications
+4. Unusual or significant activities
+5. Network usage patterns
+
+Provide insights in a clear, structured format.`
           },
           {
             role: "user",
@@ -85,7 +99,16 @@ export class OpenAIService {
         messages: [
           {
             role: "system",
-            content: "Suggest improvements or alternative ways to phrase the blockchain query to get better results. Return an array of suggestions."
+            content: `You are a blockchain query optimization expert. 
+Suggest improvements to make blockchain data queries more precise and informative.
+Consider:
+1. Time ranges
+2. Transaction types
+3. Value thresholds
+4. Specific protocols or contracts
+5. Wallet categories (e.g., whale addresses, DEX contracts)
+
+Return an array of suggested query improvements.`
           },
           {
             role: "user",
