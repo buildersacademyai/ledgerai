@@ -20,23 +20,43 @@ For gas fee analysis queries:
 2. Structure data with 'topSpenders' array
 3. Add timeframe information`;
 
+function isValidResponse(response: any): boolean {
+  // Check if response has required structure
+  if (!response || typeof response !== 'object') return false;
+  if (!['wallet', 'transaction', 'analysis'].includes(response.type)) return false;
+  if (!response.data || typeof response.data !== 'object') return false;
+  if (!response.explanation || typeof response.explanation !== 'string') return false;
+
+  // Check for specific data based on type
+  switch (response.type) {
+    case 'wallet':
+      return response.data.address && response.data.balance;
+    case 'transaction':
+      return Array.isArray(response.data) && response.data.length > 0 &&
+        response.data.every((tx: any) => tx.hash && tx.from && tx.to);
+    case 'analysis':
+      return response.data.topSpenders || response.data.metrics || response.data.insights;
+    default:
+      return false;
+  }
+}
+
 export async function registerRoutes(app: Express) {
   app.post("/api/query", async (req, res) => {
     try {
       const { query } = await insertQuerySchema.pick({ query: true }).parseAsync(req.body);
 
-      // First, check if we have this query in our database
+      // First check for similar queries in cache
       const existingQueries = await storage.getRecentQueries(100);
       const similarQuery = existingQueries.find(q => 
         q.query.toLowerCase().trim() === query.toLowerCase().trim()
       );
 
-      if (similarQuery) {
-        // If we have a matching query, return the cached response
+      if (similarQuery && isValidResponse(similarQuery.response)) {
         return res.json(similarQuery);
       }
 
-      // If no cache hit, process with OpenAI
+      // Process with OpenAI
       const completion = await openai.chat.completions.create({
         model: "gpt-4o",
         messages: [
@@ -55,13 +75,23 @@ export async function registerRoutes(app: Express) {
       const content = completion.choices[0].message.content || "{}";
       const response = JSON.parse(content);
 
-      // Save the new query and response to database
-      const savedQuery = await storage.saveQuery({ 
-        query, 
-        response 
-      });
+      // Only store valid responses
+      if (!isValidResponse(response)) {
+        return res.status(400).json({ 
+          error: "Generated response was not valid for the query",
+          query,
+          response: {
+            type: "analysis",
+            data: { error: "Could not generate valid response" },
+            explanation: "The AI model could not provide an accurate answer to your query. Please try rephrasing your question."
+          }
+        });
+      }
 
-      // If the response contains transaction data, store it
+      // Store the valid response
+      const savedQuery = await storage.saveQuery({ query, response });
+
+      // Process additional data based on response type
       if (response.type === 'transaction' && Array.isArray(response.data)) {
         for (const tx of response.data) {
           if (tx.hash && tx.from && tx.to && tx.amount) {
@@ -75,7 +105,6 @@ export async function registerRoutes(app: Express) {
         }
       }
 
-      // If the response contains wallet data, store it
       if (response.type === 'wallet' && response.data.address) {
         await storage.saveWallet({
           address: response.data.address,
