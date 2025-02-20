@@ -72,9 +72,9 @@ export default function Home() {
               />
             </svg>
             <div>
-              <h1 className="text-4xl font-bold bg-gradient-to-r from-[#FFCB67] to-[#FFE5B1] text-transparent bg-clip-text">
+              <a href="/" className="text-4xl font-bold bg-gradient-to-r from-[#FFCB67] to-[#FFE5B1] text-transparent bg-clip-text">
                 LedgerAI
-              </h1>
+              </a>
               <p className="text-sm text-primary/80">Powered by Sonic Blockchain</p>
             </div>
           </div>
