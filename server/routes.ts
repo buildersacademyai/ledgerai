@@ -44,7 +44,10 @@ export async function registerRoutes(app: Express) {
       const response = JSON.parse(content);
 
       // Save the new query and response to database
-      const savedQuery = await storage.saveQuery({ query, response });
+      const savedQuery = await storage.saveQuery({ 
+        query, 
+        response: response // Ensure response is saved as a proper JSON object
+      });
 
       // If the response contains transaction data, store it
       if (response.type === 'transaction' && Array.isArray(response.data)) {

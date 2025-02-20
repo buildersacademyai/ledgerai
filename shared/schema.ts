@@ -27,7 +27,8 @@ export const transactions = pgTable("transactions", {
 
 export const insertQuerySchema = createInsertSchema(blockchainQueries).pick({
   query: true,
-  response: true,
+}).extend({
+  query: z.string().min(1, "Query cannot be empty"),
 });
 
 export const insertWalletSchema = createInsertSchema(wallets).pick({
