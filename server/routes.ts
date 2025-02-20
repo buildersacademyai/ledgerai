@@ -8,10 +8,17 @@ import { insertQuerySchema } from "@shared/schema";
 // the newest OpenAI model is "gpt-4o" which was released May 13, 2024
 const openai = new OpenAI({ apiKey: process.env.OPENAI_API_KEY });
 
+const SYSTEM_PROMPT = `You are a blockchain data analyzer. Format responses as JSON with the following structure:
+{
+  "type": "wallet" | "transaction" | "analysis",
+  "data": object | array,
+  "explanation": string
+}`;
+
 export async function registerRoutes(app: Express) {
   app.post("/api/query", async (req, res) => {
     try {
-      const { query } = insertQuerySchema.parse(req.body);
+      const { query } = await insertQuerySchema.pick({ query: true }).parseAsync(req.body);
 
       // First, check if we have this query in our database
       const existingQueries = await storage.getRecentQueries(100);
@@ -30,7 +37,7 @@ export async function registerRoutes(app: Express) {
         messages: [
           {
             role: "system",
-            content: "You are a blockchain data analyzer. Format responses as JSON with relevant blockchain data."
+            content: SYSTEM_PROMPT
           },
           {
             role: "user",
@@ -46,7 +53,7 @@ export async function registerRoutes(app: Express) {
       // Save the new query and response to database
       const savedQuery = await storage.saveQuery({ 
         query, 
-        response: response // Ensure response is saved as a proper JSON object
+        response 
       });
 
       // If the response contains transaction data, store it

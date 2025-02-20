@@ -31,8 +31,13 @@ function getResponseIcon(type: string) {
 }
 
 export default function ResponseCard({ query, response }: ResponseCardProps) {
-  const data = response.response as Record<string, unknown>;
-  const type = data.type as string;
+  if (!response?.response) return null;
+
+  const data = response.response as {
+    type: string;
+    data: Record<string, unknown>;
+    explanation?: string;
+  };
 
   return (
     <Card className="mt-4 bg-card">
@@ -46,8 +51,8 @@ export default function ResponseCard({ query, response }: ResponseCardProps) {
       <CardContent className="space-y-4">
         {/* Response Type Header */}
         <div className="flex items-center gap-2 text-primary">
-          {getResponseIcon(type)}
-          <CardTitle className="capitalize">{type} Response</CardTitle>
+          {getResponseIcon(data.type)}
+          <CardTitle className="capitalize">{data.type} Response</CardTitle>
         </div>
 
         {/* Explanation Section */}

@@ -25,10 +25,16 @@ export const transactions = pgTable("transactions", {
   timestamp: timestamp("timestamp").defaultNow(),
 });
 
-export const insertQuerySchema = createInsertSchema(blockchainQueries).pick({
-  query: true,
+export const insertQuerySchema = createInsertSchema(blockchainQueries).omit({
+  id: true,
+  timestamp: true,
 }).extend({
   query: z.string().min(1, "Query cannot be empty"),
+  response: z.object({
+    type: z.string(),
+    data: z.any(),
+    explanation: z.string().optional(),
+  }),
 });
 
 export const insertWalletSchema = createInsertSchema(wallets).pick({
