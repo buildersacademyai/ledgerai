@@ -1,4 +1,4 @@
-import { pgTable, text, serial, integer, jsonb, timestamp } from "drizzle-orm/pg-core";
+import { pgTable, text, serial, integer, jsonb, timestamp, varchar } from "drizzle-orm/pg-core";
 import { createInsertSchema } from "drizzle-zod";
 import { z } from "zod";
 
@@ -9,13 +9,20 @@ export const blockchainQueries = pgTable("blockchain_queries", {
   timestamp: timestamp("timestamp").defaultNow(),
 });
 
-export const mockTransactions = pgTable("mock_transactions", {
+export const wallets = pgTable("wallets", {
   id: serial("id").primaryKey(),
-  from: text("from").notNull(),
-  to: text("to").notNull(),
+  address: varchar("address", { length: 42 }).notNull().unique(),
+  balance: text("balance").notNull(),
+  lastUpdated: timestamp("last_updated").defaultNow(),
+});
+
+export const transactions = pgTable("transactions", {
+  id: serial("id").primaryKey(),
+  from: varchar("from_address", { length: 42 }).notNull(),
+  to: varchar("to_address", { length: 42 }).notNull(),
   amount: text("amount").notNull(),
+  hash: varchar("hash", { length: 66 }).notNull().unique(),
   timestamp: timestamp("timestamp").defaultNow(),
-  hash: text("hash").notNull(),
 });
 
 export const insertQuerySchema = createInsertSchema(blockchainQueries).pick({
@@ -23,7 +30,12 @@ export const insertQuerySchema = createInsertSchema(blockchainQueries).pick({
   response: true,
 });
 
-export const insertTransactionSchema = createInsertSchema(mockTransactions).pick({
+export const insertWalletSchema = createInsertSchema(wallets).pick({
+  address: true,
+  balance: true,
+});
+
+export const insertTransactionSchema = createInsertSchema(transactions).pick({
   from: true,
   to: true,
   amount: true,
@@ -31,5 +43,9 @@ export const insertTransactionSchema = createInsertSchema(mockTransactions).pick
 });
 
 export type InsertQuery = z.infer<typeof insertQuerySchema>;
+export type InsertWallet = z.infer<typeof insertWalletSchema>;
+export type InsertTransaction = z.infer<typeof insertTransactionSchema>;
+
 export type Query = typeof blockchainQueries.$inferSelect;
-export type Transaction = typeof mockTransactions.$inferSelect;
+export type Wallet = typeof wallets.$inferSelect;
+export type Transaction = typeof transactions.$inferSelect;

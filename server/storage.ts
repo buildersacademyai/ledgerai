@@ -1,65 +1,72 @@
-import { Query, InsertQuery, Transaction } from "@shared/schema";
+import { db } from "./db";
+import { 
+  type Query, type InsertQuery,
+  type Transaction, type InsertTransaction,
+  type Wallet, type InsertWallet,
+  blockchainQueries, transactions, wallets
+} from "@shared/schema";
+import { desc, eq } from "drizzle-orm";
 
 export interface IStorage {
   saveQuery(query: InsertQuery): Promise<Query>;
   getRecentQueries(limit: number): Promise<Query[]>;
   getMockTransactions(): Promise<Transaction[]>;
+  getWallet(address: string): Promise<Wallet | undefined>;
+  saveWallet(wallet: InsertWallet): Promise<Wallet>;
+  saveTransaction(transaction: InsertTransaction): Promise<Transaction>;
 }
 
-export class MemStorage implements IStorage {
-  private queries: Map<number, Query>;
-  private transactions: Map<number, Transaction>;
-  private currentId: number;
-
-  constructor() {
-    this.queries = new Map();
-    this.transactions = new Map();
-    this.currentId = 1;
-    this.initializeMockData();
-  }
-
-  private initializeMockData() {
-    const mockTransactions: Transaction[] = [
-      {
-        id: 1,
-        from: "0x742d35Cc6634C0532925a3b844Bc454e4438f44e",
-        to: "0x123f681646d4a755815f9cb19e1acc8565a0c2ac",
-        amount: "1.5 ETH",
-        timestamp: new Date(),
-        hash: "0xabc123..."
-      },
-      // Add more mock transactions as needed
-    ];
-
-    mockTransactions.forEach(tx => {
-      this.transactions.set(tx.id, tx);
-    });
-  }
-
+export class DatabaseStorage implements IStorage {
   async saveQuery(insertQuery: InsertQuery): Promise<Query> {
-    const id = this.currentId++;
-    const query: Query = {
-      id,
-      ...insertQuery,
-      timestamp: new Date(),
-    };
-    this.queries.set(id, query);
+    const [query] = await db
+      .insert(blockchainQueries)
+      .values({
+        ...insertQuery,
+        timestamp: new Date(),
+      })
+      .returning();
     return query;
   }
 
   async getRecentQueries(limit: number): Promise<Query[]> {
-    return Array.from(this.queries.values())
-      .sort((a, b) => {
-        const timeA = a.timestamp?.getTime() ?? 0;
-        const timeB = b.timestamp?.getTime() ?? 0;
-        return timeB - timeA;
-      })
-      .slice(0, limit);
+    return await db
+      .select()
+      .from(blockchainQueries)
+      .orderBy(desc(blockchainQueries.timestamp))
+      .limit(limit);
   }
 
   async getMockTransactions(): Promise<Transaction[]> {
-    return Array.from(this.transactions.values());
+    return await db
+      .select()
+      .from(transactions)
+      .orderBy(desc(transactions.timestamp))
+      .limit(10);
+  }
+
+  async getWallet(address: string): Promise<Wallet | undefined> {
+    const [wallet] = await db
+      .select()
+      .from(wallets)
+      .where(eq(wallets.address, address));
+    return wallet;
+  }
+
+  async saveWallet(wallet: InsertWallet): Promise<Wallet> {
+    const [saved] = await db
+      .insert(wallets)
+      .values(wallet)
+      .returning();
+    return saved;
+  }
+
+  async saveTransaction(transaction: InsertTransaction): Promise<Transaction> {
+    const [saved] = await db
+      .insert(transactions)
+      .values(transaction)
+      .returning();
+    return saved;
   }
 }
 
-export const storage = new MemStorage();
+export const storage = new DatabaseStorage();
