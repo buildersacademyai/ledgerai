@@ -45,9 +45,40 @@ export default function Home() {
   return (
     <div className="min-h-screen bg-background">
       <div className="container mx-auto px-4 py-8">
-        <h1 className="text-4xl font-bold text-primary mb-8">
-          Blockchain Explorer
-        </h1>
+        {/* Updated Header with Sonic Blockchain branding */}
+        <div className="flex items-center justify-between mb-8">
+          <div className="flex items-center gap-3">
+            <svg
+              viewBox="0 0 24 24"
+              fill="none"
+              className="w-10 h-10 text-primary"
+              stroke="currentColor"
+              strokeWidth="2"
+            >
+              <path
+                d="M20 12V8H6a2 2 0 01-2-2 2 2 0 012-2h12v4"
+                strokeLinecap="round"
+                strokeLinejoin="round"
+              />
+              <path
+                d="M4 6v12a2 2 0 002 2h14v-4"
+                strokeLinecap="round"
+                strokeLinejoin="round"
+              />
+              <path
+                d="M18 12H4"
+                strokeLinecap="round"
+                strokeLinejoin="round"
+              />
+            </svg>
+            <div>
+              <h1 className="text-4xl font-bold bg-gradient-to-r from-[#FFCB67] to-[#FFE5B1] text-transparent bg-clip-text">
+                LedgerAI
+              </h1>
+              <p className="text-sm text-primary/80">Powered by Sonic Blockchain</p>
+            </div>
+          </div>
+        </div>
 
         <div className="grid grid-cols-1 lg:grid-cols-12 gap-8">
           <div className="lg:col-span-8">
