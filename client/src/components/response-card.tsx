@@ -19,8 +19,9 @@ function formatValue(value: unknown): string {
   return String(value);
 }
 
-function getResponseIcon(type: string) {
-  switch (type.toLowerCase()) {
+function getResponseIcon(type: string | undefined) {
+  const responseType = type?.toLowerCase() || 'unknown';
+  switch (responseType) {
     case 'wallet':
       return <Wallet className="h-6 w-6" />;
     case 'transaction':
@@ -54,10 +55,10 @@ export default function ResponseCard({ query, response }: ResponseCardProps) {
       <CardContent className="pt-6 space-y-6">
         {/* Response Type Header */}
         <div className="flex items-center gap-3 text-primary">
-          {getResponseIcon(data.type)}
+          {getResponseIcon(data?.type)}
           <div>
             <CardTitle className="capitalize text-xl">
-              {data.type} Response
+              {data?.type || 'Unknown'} Response
             </CardTitle>
             <p className="text-sm text-muted-foreground mt-1">
               Blockchain data analysis results
@@ -66,7 +67,7 @@ export default function ResponseCard({ query, response }: ResponseCardProps) {
         </div>
 
         {/* Explanation Section */}
-        {data.explanation && (
+        {data?.explanation && (
           <div className="bg-primary/5 border border-primary/20 p-4 rounded-lg">
             <p className="text-sm leading-relaxed text-card-foreground">
               {data.explanation}
@@ -76,7 +77,7 @@ export default function ResponseCard({ query, response }: ResponseCardProps) {
 
         {/* Data Display */}
         <div className="grid gap-4">
-          {data.data && typeof data.data === 'object' && (
+          {data?.data && typeof data.data === 'object' && (
             <div className="grid gap-3">
               {Object.entries(data.data).map(([key, value]) => (
                 <div
