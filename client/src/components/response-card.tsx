@@ -1,6 +1,6 @@
 import { Card, CardHeader, CardTitle, CardContent } from "@/components/ui/card";
 import { Query } from "@shared/schema";
-import { Wallet, Search, FileText } from "lucide-react";
+import { Wallet, Search, FileText, ArrowRight, Database, BarChart } from "lucide-react";
 
 interface ResponseCardProps {
   query: string;
@@ -20,13 +20,15 @@ function formatValue(value: unknown): string {
 }
 
 function getResponseIcon(type: string) {
-  switch (type) {
+  switch (type.toLowerCase()) {
     case 'wallet':
-      return <Wallet className="h-5 w-5" />;
+      return <Wallet className="h-6 w-6" />;
     case 'transaction':
-      return <Search className="h-5 w-5" />;
+      return <Database className="h-6 w-6" />;
+    case 'analysis':
+      return <BarChart className="h-6 w-6" />;
     default:
-      return <FileText className="h-5 w-5" />;
+      return <FileText className="h-6 w-6" />;
   }
 }
 
@@ -40,41 +42,56 @@ export default function ResponseCard({ query, response }: ResponseCardProps) {
   };
 
   return (
-    <Card className="mt-4 bg-card">
-      <CardHeader className="pb-2">
+    <Card className="mt-6 border-2 border-primary/20 shadow-lg">
+      <CardHeader className="pb-2 border-b border-border/30">
         <div className="flex items-center gap-2 text-sm text-muted-foreground">
           <Search className="h-4 w-4" />
-          Your query: {query}
+          <span className="font-medium">Query:</span>
+          <span className="text-primary">{query}</span>
         </div>
       </CardHeader>
 
-      <CardContent className="space-y-4">
+      <CardContent className="pt-6 space-y-6">
         {/* Response Type Header */}
-        <div className="flex items-center gap-2 text-primary">
+        <div className="flex items-center gap-3 text-primary">
           {getResponseIcon(data.type)}
-          <CardTitle className="capitalize">{data.type} Response</CardTitle>
+          <div>
+            <CardTitle className="capitalize text-xl">
+              {data.type} Response
+            </CardTitle>
+            <p className="text-sm text-muted-foreground mt-1">
+              Blockchain data analysis results
+            </p>
+          </div>
         </div>
 
         {/* Explanation Section */}
         {data.explanation && (
-          <div className="text-sm text-card-foreground/90 bg-muted p-3 rounded-lg">
-            {data.explanation}
+          <div className="bg-primary/5 border border-primary/20 p-4 rounded-lg">
+            <p className="text-sm leading-relaxed text-card-foreground">
+              {data.explanation}
+            </p>
           </div>
         )}
 
         {/* Data Display */}
-        <div className="grid gap-2">
+        <div className="grid gap-4">
           {data.data && typeof data.data === 'object' && (
-            <div className="space-y-2">
+            <div className="grid gap-3">
               {Object.entries(data.data).map(([key, value]) => (
                 <div
                   key={key}
-                  className="flex flex-col p-2 bg-background/50 rounded-md"
+                  className="flex flex-col p-4 bg-muted/50 rounded-lg border border-border/50 hover:border-primary/30 transition-colors"
                 >
-                  <span className="text-xs font-medium text-muted-foreground capitalize">
-                    {key.replace(/_/g, ' ')}
+                  <div className="flex items-center gap-2 mb-2">
+                    <ArrowRight className="h-4 w-4 text-primary" />
+                    <span className="text-sm font-medium text-primary/90 capitalize">
+                      {key.replace(/_/g, ' ')}
+                    </span>
+                  </div>
+                  <span className="text-sm text-card-foreground pl-6">
+                    {formatValue(value)}
                   </span>
-                  <span className="text-sm">{formatValue(value)}</span>
                 </div>
               ))}
             </div>
