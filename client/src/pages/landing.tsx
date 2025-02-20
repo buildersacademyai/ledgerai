@@ -34,7 +34,8 @@ export default function Landing() {
         </div>
 
         <nav className="flex items-center gap-6">
-          <a href="#about" className="text-[#FFCB67] hover:text-[#FFE5B1] transition-colors">About Us</a>
+          <a href="#features" className="text-[#FFCB67] hover:text-[#FFE5B1] transition-colors">Features</a>
+          <a href="#about" className="text-[#FFCB67] hover:text-[#FFE5B1] transition-colors">About</a>
           <Link href="/app">
             <Button className="bg-primary text-black hover:bg-primary/90">
               Launch App
@@ -43,7 +44,7 @@ export default function Landing() {
         </nav>
       </header>
 
-      {/* Main Content */}
+      {/* Hero Section */}
       <main className="flex-1 container mx-auto px-4 py-12">
         <div className="max-w-3xl mx-auto text-center">
           <h2 className="text-4xl font-bold mb-6 bg-gradient-to-r from-[#FFCB67] to-[#FFE5B1] text-transparent bg-clip-text">
@@ -60,13 +61,58 @@ export default function Landing() {
           </Link>
         </div>
 
+        {/* Features Section */}
+        <div id="features" className="mt-24 grid md:grid-cols-2 gap-12 max-w-5xl mx-auto">
+          <div className="space-y-6">
+            <h3 className="text-2xl font-bold bg-gradient-to-r from-[#FFCB67] to-[#FFE5B1] text-transparent bg-clip-text">
+              Sonic Blockchain Integration
+            </h3>
+            <ul className="space-y-4 text-[#FFCB67]/80">
+              <li className="flex items-start gap-2">
+                <span className="text-primary">•</span>
+                <span>High-performance blockchain data indexing and querying</span>
+              </li>
+              <li className="flex items-start gap-2">
+                <span className="text-primary">•</span>
+                <span>Real-time transaction monitoring and analysis</span>
+              </li>
+              <li className="flex items-start gap-2">
+                <span className="text-primary">•</span>
+                <span>Advanced smart contract interaction tracking</span>
+              </li>
+            </ul>
+          </div>
+
+          <div className="space-y-6">
+            <h3 className="text-2xl font-bold bg-gradient-to-r from-[#FFCB67] to-[#FFE5B1] text-transparent bg-clip-text">
+              Natural Language Search
+            </h3>
+            <ul className="space-y-4 text-[#FFCB67]/80">
+              <li className="flex items-start gap-2">
+                <span className="text-primary">•</span>
+                <span>"Show me the top 10 Ethereum holders"</span>
+              </li>
+              <li className="flex items-start gap-2">
+                <span className="text-primary">•</span>
+                <span>"Find the largest transactions in the last 7 days"</span>
+              </li>
+              <li className="flex items-start gap-2">
+                <span className="text-primary">•</span>
+                <span>"Which wallet interacted with Uniswap the most?"</span>
+              </li>
+            </ul>
+          </div>
+        </div>
+
         {/* About Section */}
         <div id="about" className="mt-24 max-w-2xl mx-auto text-center">
           <h3 className="text-2xl font-bold mb-4 bg-gradient-to-r from-[#FFCB67] to-[#FFE5B1] text-transparent bg-clip-text">About Us</h3>
           <p className="text-lg text-[#FFCB67]/80">
-            LedgerAI combines the power of artificial intelligence with blockchain
-            technology to make crypto data accessible to everyone. Whether you're
-            a trader, researcher, or just curious about blockchain, we've got you covered.
+            LedgerAI combines the power of artificial intelligence with Sonic Blockchain's
+            cutting-edge infrastructure to make blockchain data accessible to everyone.
+            Whether you're a trader, researcher, or just curious about blockchain,
+            we provide intuitive natural language interfaces to explore and understand
+            blockchain data.
           </p>
         </div>
       </main>

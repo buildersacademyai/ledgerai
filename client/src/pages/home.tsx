@@ -6,7 +6,6 @@ import ChatInput from "@/components/chat-input";
 import ResponseCard from "@/components/response-card";
 import TransactionViz from "@/components/transaction-viz";
 import { useToast } from "@/hooks/use-toast";
-import { MessageSquare } from "lucide-react";
 
 export default function Home() {
   const [currentQuery, setCurrentQuery] = useState("");
@@ -46,7 +45,7 @@ export default function Home() {
   return (
     <div className="min-h-screen bg-background">
       <div className="container mx-auto px-4 py-8">
-        {/* Updated Header with Sonic Blockchain branding */}
+        {/* Header with Branding */}
         <div className="flex items-center justify-between mb-8">
           <div className="flex items-center gap-3">
             <svg
@@ -80,40 +79,6 @@ export default function Home() {
             </div>
           </div>
         </div>
-
-        {/* New Info Section */}
-        <Card className="p-6 mb-8 border-2 border-primary/20 bg-card/50">
-          <div className="grid md:grid-cols-2 gap-8">
-            <div>
-              <h2 className="text-2xl font-semibold mb-4 text-primary">Explore Sonic Blockchain</h2>
-              <p className="text-card-foreground/90 leading-relaxed">
-                Sonic Blockchain provides high-performance, scalable blockchain infrastructure 
-                with advanced data indexing capabilities. Our platform enables real-time 
-                tracking and analysis of blockchain transactions, smart contracts, and wallet activities.
-              </p>
-            </div>
-            <div>
-              <h2 className="text-2xl font-semibold mb-4 text-primary">Natural Language Queries</h2>
-              <div className="space-y-2">
-                <p className="text-card-foreground/90 mb-4">
-                  Ask questions in plain English and get detailed blockchain insights. Try queries like:
-                </p>
-                <div className="space-y-2">
-                  {[
-                    "Show me the top 10 Ethereum holders",
-                    "Find the largest transactions in the last 7 days",
-                    "Which wallet interacted with Uniswap the most?"
-                  ].map((example, i) => (
-                    <div key={i} className="flex items-center gap-2 text-sm bg-muted/50 p-2 rounded-lg">
-                      <MessageSquare className="w-4 h-4 text-primary" />
-                      <span>{example}</span>
-                    </div>
-                  ))}
-                </div>
-              </div>
-            </div>
-          </div>
-        </Card>
 
         <div className="grid grid-cols-1 lg:grid-cols-12 gap-8">
           <div className="lg:col-span-8">
