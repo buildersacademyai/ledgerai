@@ -4,18 +4,14 @@ import { apiRequest, queryClient } from "@/lib/queryClient";
 import { Card } from "@/components/ui/card";
 import ChatInput from "@/components/chat-input";
 import ResponseCard from "@/components/response-card";
-import TransactionViz from "@/components/transaction-viz";
 import { useToast } from "@/hooks/use-toast";
+import { Query } from "@shared/schema";
 
 export default function Home() {
   const [currentQuery, setCurrentQuery] = useState("");
   const { toast } = useToast();
 
-  const { data: transactions } = useQuery({
-    queryKey: ["/api/transactions"],
-  });
-
-  const { data: recentQueries } = useQuery({
+  const { data: recentQueries } = useQuery<Query[]>({
     queryKey: ["/api/recent-queries"],
   });
 
@@ -26,7 +22,6 @@ export default function Home() {
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["/api/recent-queries"] });
-      queryClient.invalidateQueries({ queryKey: ["/api/transactions"] });
     },
     onError: (error) => {
       toast({
@@ -98,14 +93,9 @@ export default function Home() {
 
           <div className="lg:col-span-4">
             <Card className="p-6">
-              <h2 className="text-xl font-semibold mb-4">Recent Transactions</h2>
-              <TransactionViz transactions={transactions || []} />
-            </Card>
-
-            <Card className="p-6 mt-6">
               <h2 className="text-xl font-semibold mb-4">Recent Queries</h2>
               <div className="space-y-2">
-                {(recentQueries || []).map((query: any) => (
+                {recentQueries && recentQueries.map((query: Query) => (
                   <div
                     key={query.id}
                     className="p-3 bg-muted rounded-lg text-sm"

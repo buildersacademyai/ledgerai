@@ -34,7 +34,7 @@ export class DatabaseStorage implements IStorage {
       .select()
       .from(blockchainQueries)
       .orderBy(desc(blockchainQueries.timestamp))
-      .limit(limit);
+      .limit(10); // Always limit to 10 most recent queries
   }
 
   async findSimilarQueries(queryText: string): Promise<Query[]> {
