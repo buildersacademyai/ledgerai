@@ -20,10 +20,18 @@ export default function Home() {
       const res = await apiRequest("POST", "/api/query", { query });
       return res.json();
     },
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ["/api/recent-queries"] });
+    onSuccess: (data) => {
+      if (data.response?.type === "error") {
+        toast({
+          title: "Error",
+          description: data.response.data.error || "Failed to process query",
+          variant: "destructive",
+        });
+      } else {
+        queryClient.invalidateQueries({ queryKey: ["/api/recent-queries"] });
+      }
     },
-    onError: (error) => {
+    onError: (error: Error) => {
       toast({
         title: "Error",
         description: error.message,

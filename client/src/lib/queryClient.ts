@@ -2,8 +2,16 @@ import { QueryClient, QueryFunction } from "@tanstack/react-query";
 
 async function throwIfResNotOk(res: Response) {
   if (!res.ok) {
-    const text = (await res.text()) || res.statusText;
-    throw new Error(`${res.status}: ${text}`);
+    try {
+      const errorData = await res.json();
+      // Check if this is our custom error response format
+      if (errorData.query && errorData.response) {
+        return errorData; // Return the error response to be handled by the application
+      }
+      throw new Error(errorData.message || res.statusText);
+    } catch (e) {
+      throw new Error(`${res.status}: ${res.statusText}`);
+    }
   }
 }
 
@@ -19,7 +27,13 @@ export async function apiRequest(
     credentials: "include",
   });
 
-  await throwIfResNotOk(res);
+  const result = await throwIfResNotOk(res);
+  if (result) {
+    return new Response(JSON.stringify(result), {
+      status: 200,
+      headers: { 'Content-Type': 'application/json' }
+    });
+  }
   return res;
 }
 
@@ -37,7 +51,10 @@ export const getQueryFn: <T>(options: {
       return null;
     }
 
-    await throwIfResNotOk(res);
+    const result = await throwIfResNotOk(res);
+    if (result) {
+      return result;
+    }
     return await res.json();
   };
 
