@@ -37,10 +37,32 @@ export default function ResponseCard({ query, response }: ResponseCardProps) {
   if (!response?.response) return null;
 
   const data = response.response as {
-    type: string;
-    data: Record<string, unknown>;
+    type?: string;
+    data?: Record<string, unknown>;
     explanation?: string;
+    error?: string;
   };
+
+  // Handle error responses
+  if (data.error) {
+    return (
+      <Card className="mt-6 border-2 border-destructive/20 shadow-lg">
+        <CardHeader className="pb-2 border-b border-border/30">
+          <div className="flex items-center gap-2 text-sm text-muted-foreground">
+            <Search className="h-4 w-4" />
+            <span className="font-medium">Query:</span>
+            <span className="text-primary">{query}</span>
+          </div>
+        </CardHeader>
+        <CardContent className="pt-6">
+          <div className="text-destructive">Error: {data.error}</div>
+          {data.explanation && (
+            <p className="mt-2 text-sm text-muted-foreground">{data.explanation}</p>
+          )}
+        </CardContent>
+      </Card>
+    );
+  }
 
   return (
     <Card className="mt-6 border-2 border-primary/20 shadow-lg">

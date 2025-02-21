@@ -18,7 +18,17 @@ const SYSTEM_PROMPT = `You are a blockchain data analyzer. Format responses as J
 For gas fee analysis queries:
 1. Include 'type': 'analysis'
 2. Structure data with 'topSpenders' array
-3. Add timeframe information`;
+3. Add timeframe information
+
+For wallet queries:
+1. Include 'type': 'wallet'
+2. Structure data with address, balance, and transaction count
+3. Add relevant transaction history
+
+For transaction queries:
+1. Include 'type': 'transaction'
+2. Structure data as an array of transactions with hash, from, to, amount
+3. Add timestamp and gas information`;
 
 function isValidResponse(response: any): boolean {
   // Check if response has required structure
@@ -41,81 +51,78 @@ function isValidResponse(response: any): boolean {
   }
 }
 
+function createErrorResponse(message: string) {
+  return {
+    type: "error",
+    data: { error: message },
+    explanation: "The AI model could not provide an accurate answer. Please try rephrasing your question."
+  };
+}
+
 export async function registerRoutes(app: Express) {
   app.post("/api/query", async (req, res) => {
     try {
       const { query } = await insertQuerySchema.pick({ query: true }).parseAsync(req.body);
 
-      // First check for similar queries in cache
-      const existingQueries = await storage.getRecentQueries(100);
-      const similarQuery = existingQueries.find(q => 
-        q.query.toLowerCase().trim() === query.toLowerCase().trim()
-      );
-
-      if (similarQuery && isValidResponse(similarQuery.response)) {
-        return res.json(similarQuery);
-      }
-
-      // Process with OpenAI
-      const completion = await openai.chat.completions.create({
-        model: "gpt-4o",
-        messages: [
-          {
-            role: "system",
-            content: SYSTEM_PROMPT
-          },
-          {
-            role: "user",
-            content: query
-          }
-        ],
-        response_format: { type: "json_object" }
-      });
-
-      const content = completion.choices[0].message.content || "{}";
-      const response = JSON.parse(content);
-
-      // Only store valid responses
-      if (!isValidResponse(response)) {
-        return res.status(400).json({ 
-          error: "Generated response was not valid for the query",
-          query,
-          response: {
-            type: "analysis",
-            data: { error: "Could not generate valid response" },
-            explanation: "The AI model could not provide an accurate answer to your query. Please try rephrasing your question."
-          }
+      try {
+        const completion = await openai.chat.completions.create({
+          model: "gpt-4o",
+          messages: [
+            {
+              role: "system",
+              content: SYSTEM_PROMPT
+            },
+            {
+              role: "user",
+              content: query
+            }
+          ],
+          response_format: { type: "json_object" }
         });
-      }
 
-      // Store the valid response
-      const savedQuery = await storage.saveQuery({ query, response });
+        const content = completion.choices[0].message.content || "{}";
+        let response = JSON.parse(content);
 
-      // Process additional data based on response type
-      if (response.type === 'transaction' && Array.isArray(response.data)) {
-        for (const tx of response.data) {
-          if (tx.hash && tx.from && tx.to && tx.amount) {
-            await storage.saveTransaction({
-              hash: tx.hash,
-              from: tx.from,
-              to: tx.to,
-              amount: tx.amount
-            });
+        // Only store valid responses
+        if (!isValidResponse(response)) {
+          response = createErrorResponse("Could not generate a valid response for your query");
+          return res.status(400).json({ query, response });
+        }
+
+        // Store the valid response
+        const savedQuery = await storage.saveQuery({ query, response });
+
+        // Process additional data based on response type
+        if (response.type === 'transaction' && Array.isArray(response.data)) {
+          for (const tx of response.data) {
+            if (tx.hash && tx.from && tx.to && tx.amount) {
+              await storage.saveTransaction({
+                hash: tx.hash,
+                from: tx.from,
+                to: tx.to,
+                amount: tx.amount
+              });
+            }
           }
         }
-      }
 
-      if (response.type === 'wallet' && response.data.address) {
-        await storage.saveWallet({
-          address: response.data.address,
-          balance: response.data.balance || '0 ETH'
-        });
-      }
+        if (response.type === 'wallet' && response.data.address) {
+          await storage.saveWallet({
+            address: response.data.address,
+            balance: response.data.balance || '0 ETH'
+          });
+        }
 
-      res.json(savedQuery);
+        res.json(savedQuery);
+      } catch (error: any) {
+        console.error("OpenAI API error:", error);
+        const response = createErrorResponse(error.message);
+        res.status(400).json({ query, response });
+      }
     } catch (error: any) {
       const message = error?.message || "An error occurred";
-      res.status(400).json({ error: message });
+      const response = createErrorResponse(message);
+      res.status(400).json({ query: req.body.query || "", response });
     }
   });
 
