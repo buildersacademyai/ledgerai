@@ -110,13 +110,6 @@ Response: Array<{
 4. AI analyzes and formats the response
 5. Results are visualized and cached
 
-## 🔐 Security
-
-- All API keys are securely stored in environment variables
-- Input validation using Zod schemas
-- API rate limiting and error handling
-- Secure database connections with connection pooling
-
 ## 🌐 Live Demo
 
 Visit [ledgerai.buildersacademy.ai](https://ledgerai.buildersacademy.ai) to try it out!
@@ -125,6 +118,3 @@ Visit [ledgerai.buildersacademy.ai](https://ledgerai.buildersacademy.ai) to try 
 
 For any queries, reach out to: contact@buildersacademy.ai
 
-## 📄 License
-
-MIT License - see LICENSE file for details
