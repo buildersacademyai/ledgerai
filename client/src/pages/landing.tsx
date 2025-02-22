@@ -51,7 +51,7 @@ export default function Landing() {
             Explore Blockchain Data with Natural Language
           </h2>
           <p className="text-xl mb-8 text-[#FFCB67]/90">
-            Ask questions about Sonic Blockchain transactions, wallets, and smart contracts in plain English.
+            Ask questions about Ethereum, Sonic Blockchain transactions, wallets, and smart contracts in plain English.
             Let AI do the heavy lifting.
           </p>
           <Link href="/app">
